@@ -69,8 +69,9 @@ nach der Feier gebt ihr dem Brautpaar einfach die Zugangsdaten.
    **Zulassen**. Das Skript bekommt damit Zugriff auf euer Drive – es legt aber
    nur Dateien im eingetragenen Ordner an.
 7. Die **Web-App-URL** kopieren (endet auf `/exec`).
-   Zum Testen die URL im Browser öffnen – es sollte
-   `{"ok":true,"info":"Hochzeit-Upload läuft.","ordner":"eingetragen"}` erscheinen.
+8. **Selbsttest:** die URL im Browser öffnen und `?test=1` anhängen
+   (`…/exec?test=1`). Das Skript prüft alle Schritte einzeln – bei jedem sollte
+   `"ok":true` stehen. Wenn nicht, steht beim fehlerhaften Schritt der Grund.
 
 **Wichtig bei Änderungen am Skript:** Nach jeder Änderung an `Code.gs` unter
 **Bereitstellen → Bereitstellungen verwalten** → Stift → *Version*: **Neue
@@ -101,14 +102,17 @@ Alles in `config.js`:
 | `name1`, `name2`, `datum` | Namen und Datum auf der Titelseite |
 | `ort` | Ort unter dem Datum (leer = ausgeblendet) |
 | `begruessung` | Satz unter dem Titel |
-| `titelbild` | großes Foto hinter den Namen, z. B. `'bilder/titel.jpg'` |
+| `hintergrundbild` | Foto hinter der ganzen Seite, oben voll sichtbar, beim Scrollen durchsichtig (Standard `'bilder/hintergrund.jpg'`) |
+| `hintergrundRest` | wie viel vom Foto unten noch zu sehen ist, `0` bis `1` (Standard `0.12`) |
 | `fotos` | kleine Bildreihe, z. B. `['bilder/1.jpg', 'bilder/2.jpg']` |
 | `gastCode` | `true` = die Seite fragt nach dem Code aus `GAST_CODE` |
 | `maxMB` | größte Datei (gleich wie `MAX_MB` im Skript) |
 
-Fotos einfach in den Ordner `bilder/` legen. Für das Titelbild reicht eine
-Breite von etwa 2000 Pixeln (Querformat, Gesichter eher in der Mitte), sonst
-lädt die Seite auf dem Handy unnötig lange. Farben und Schriften stehen oben in
+Fotos einfach in den Ordner `bilder/` legen. **Hintergrundfoto:** als
+`bilder/hintergrund.jpg` hochladen, dann erscheint es von selbst. Am Handy wird
+es hochkant zugeschnitten: Das Paar sollte also eher in der Mitte stehen, mit
+etwas Luft nach links und rechts. 1600–2000 Pixel an der langen Seite und unter
+1 MB reichen völlig, sonst lädt die Seite unnötig lange. Farben und Schriften stehen oben in
 `style.css`.
 
 Nach einer Änderung an `style.css`, `app.js` oder `config.js` in `index.html`

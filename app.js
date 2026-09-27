@@ -23,9 +23,6 @@
 
   /* ---------------- Titel & Texte ---------------- */
 
-  var MONATE = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli',
-    'August', 'September', 'Oktober', 'November', 'Dezember'];
-  var TAGE = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
   var zwei = function (n) { return (n < 10 ? '0' : '') + n; };
 
   function titel() {
@@ -37,7 +34,6 @@
     var p = String(C.datum || '2026-10-24').split('-').map(Number);
     var tag = new Date(p[0], p[1] - 1, p[2]);
     $('datum').textContent = zwei(p[2]) + ' · ' + zwei(p[1]) + ' · ' + p[0];
-    $('datum-lang').textContent = TAGE[tag.getDay()] + ', ' + p[2] + '. ' + MONATE[p[1] - 1] + ' ' + p[0];
     $('f-date').textContent = zwei(p[2]) + '.' + zwei(p[1]) + '.' + p[0];
     document.title = n1 + ' & ' + n2 + ' · ' + zwei(p[2]) + '.' + zwei(p[1]) + '.' + p[0];
 
@@ -54,11 +50,7 @@
     if (C.begruessung) $('begruessung').textContent = C.begruessung;
     else $('begruessung').hidden = true;
 
-    if (C.titelbild) {
-      var hero = $('hero');
-      hero.style.setProperty('--titelbild', 'url("' + encodeURI(C.titelbild) + '")');
-      hero.classList.add('mit-bild');
-    }
+    if (C.hintergrundbild) hintergrund(C.hintergrundbild);
 
     if (C.fotos && C.fotos.length) {
       var reihe = $('fotoreihe');
@@ -71,6 +63,32 @@
     }
 
     $('max-mb').textContent = C.maxMB || 500;
+  }
+
+  /* Hintergrundfoto: erst zeigen, wenn es wirklich geladen ist – fehlt die
+     Datei, bleibt die Seite einfach hell. Beim Scrollen wird es durchsichtiger. */
+  function hintergrund(src) {
+    var img = new Image();
+    img.onload = function () {
+      var bg = $('bg');
+      bg.style.backgroundImage = 'url("' + encodeURI(src) + '")';
+      document.body.classList.add('mit-foto');
+      var rest = typeof C.hintergrundRest === 'number' ? C.hintergrundRest : 0.12;
+      var ruhig = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var geplant = false;
+      var male = function () {
+        geplant = false;
+        var t = Math.min(1, Math.max(0, window.scrollY / (window.innerHeight * 0.9)));
+        bg.style.opacity = String(1 - t * (1 - rest));
+        if (!ruhig) bg.style.transform = 'scale(' + (1 + 0.06 * t) + ')';
+      };
+      window.addEventListener('scroll', function () {
+        if (!geplant) { geplant = true; requestAnimationFrame(male); }
+      }, { passive: true });
+      window.addEventListener('resize', male);
+      male();
+    };
+    img.src = src;
   }
 
   /* ---------------- Gäste-Code ---------------- */
@@ -342,11 +360,12 @@
         try { a = JSON.parse(xhr.responseText); } catch (e) { /* leer */ }
         if (a && a.ok) return ok(a);
         var err;
+        var kurz = !a && xhr.responseText ? ' – ' + xhr.responseText.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80) : '';
         if (a && a.fehler === 'code') {
           err = new Error('Der Gäste-Code stimmt nicht');
           err.istCode = true;
         } else {
-          err = new Error(a && a.fehler ? a.fehler : 'Fehler ' + xhr.status + ' beim Hochladen');
+          err = new Error(a && a.fehler ? a.fehler : 'Fehler ' + xhr.status + ' beim Hochladen' + kurz);
         }
         err.endgueltig = !!(a && a.endgueltig);
         nein(err);

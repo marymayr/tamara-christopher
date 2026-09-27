@@ -11,12 +11,16 @@ window.HOCHZEIT = {
   ort: '',                      // z. B. 'Gut Sonnenhof, Salzburg' – leer = wird nicht angezeigt
 
   /* Begrüßung unter den Namen (leer = keine) */
-  begruessung: 'Schön, dass ihr diesen Tag mit uns feiert.',
+  begruessung: 'Schön, dass ihr diesen Tag mit Tammy und Chrissy feiert.',
 
   /* Eigene Fotos: Dateien in den Ordner „bilder“ legen und hier eintragen.
-     titelbild = großes Bild hinter den Namen (leer = heller Hintergrund)
-     fotos     = kleine Bildreihe unter der Begrüßung (leer = keine)      */
-  titelbild: '',                // z. B. 'bilder/titel.jpg'
+     hintergrundbild = Foto hinter der ganzen Seite; oben voll zu sehen,
+                       beim Scrollen wird es langsam durchsichtig.
+                       Fehlt die Datei, bleibt der helle Hintergrund.
+     hintergrundRest = wie viel vom Foto unten noch zu sehen ist (0 bis 1)
+     fotos           = kleine Bildreihe unter der Begrüßung (leer = keine)  */
+  hintergrundbild: 'bilder/hintergrund.jpg',
+  hintergrundRest: 0.12,
   fotos: [],                    // z. B. ['bilder/1.jpg', 'bilder/2.jpg', 'bilder/3.jpg']
 
   /* Google Drive: Adresse der Web-App aus Google Apps Script (endet auf /exec).

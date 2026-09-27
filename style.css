@@ -37,18 +37,26 @@ img { max-width: 100%; display: block; }
   background: radial-gradient(ellipse at 50% 40%, #FFFDF9 0%, var(--bg) 70%);
   overflow: hidden;
 }
-.hero.mit-bild {
-  background: #2b2723 center / cover no-repeat;
-  background-image: var(--titelbild);
-  color: #fff;
+/* Hintergrundfoto über die ganze Seite */
+.bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: center 30% / cover no-repeat;
+  opacity: 0;
+  will-change: opacity, transform;
+  transform-origin: 50% 30%;
 }
-.hero.mit-bild::before {
+.bg::after {
   content: "";
   position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(20,16,12,.25) 0%, rgba(20,16,12,.45) 100%);
+  background: linear-gradient(180deg, rgba(20,16,12,.30) 0%, rgba(20,16,12,.50) 100%);
 }
+.mit-foto .hero { background: transparent; color: #fff; }
+.mit-foto .hero::after { display: none; }
+.mit-foto .hero-inner { text-shadow: 0 1px 18px rgba(0,0,0,.35); }
 .hero-inner { position: relative; max-width: 900px; }
-.hero:not(.mit-bild)::after {
+.hero::after {
   content: "";
   position: absolute; inset: 22px;
   border: 1px solid var(--line);
@@ -62,7 +70,7 @@ img { max-width: 100%; display: block; }
   text-transform: uppercase;
   color: var(--gold);
 }
-.mit-bild .kicker { color: #F1E6D2; }
+.mit-foto .hero .kicker { color: #F1E6D2; }
 
 .names {
   margin: 0;
@@ -81,7 +89,7 @@ img { max-width: 100%; display: block; }
   color: var(--gold);
   margin: .05em 0 .1em;
 }
-.mit-bild .names .amp { color: #F1E6D2; }
+.mit-foto .hero .names .amp { color: #F1E6D2; }
 
 .date {
   margin: 28px 0 0;
@@ -90,12 +98,7 @@ img { max-width: 100%; display: block; }
   font-weight: 500;
   padding-left: .3em; /* gleicht den Buchstabenabstand am Ende aus */
 }
-.date-long {
-  margin: 4px 0 0;
-  font-style: italic;
-  color: var(--muted);
-}
-.mit-bild .date-long, .mit-bild .ort, .mit-bild .countdown { color: #EDE5D8; }
+.mit-foto .hero .ort, .mit-foto .hero .countdown { color: #EDE5D8; }
 .ort { margin: 2px 0 0; color: var(--muted); }
 .countdown {
   margin: 22px 0 0;
@@ -129,8 +132,8 @@ img { max-width: 100%; display: block; }
   color: var(--gold-dark);
 }
 .btn-hero:hover { background: var(--gold); color: #fff; }
-.mit-bild .btn-hero { color: #fff; border-color: #fff; }
-.mit-bild .btn-hero:hover { background: #fff; color: var(--ink); }
+.mit-foto .hero .btn-hero { color: #fff; border-color: #fff; }
+.mit-foto .hero .btn-hero:hover { background: #fff; color: var(--ink); }
 .btn-big { font-size: 19px; padding: 18px 30px; min-height: 58px; }
 .btn-line { background: transparent; color: var(--gold-dark); margin-top: 16px; }
 .btn-line:hover { color: #fff; }
@@ -139,7 +142,8 @@ img { max-width: 100%; display: block; }
 main { padding: 0 16px; }
 .intro, .teilen { max-width: 720px; margin: 0 auto; text-align: center; }
 .intro { padding: 64px 0 24px; }
-.ornament { color: var(--gold); width: 120px; margin: 0 auto 20px; }
+.ornament { color: var(--gold); width: min(280px, 80%); margin: 0 auto 22px; }
+.ornament svg { display: block; width: 100%; height: auto; }
 .begruessung { font-size: clamp(22px, 4vw, 28px); font-style: italic; margin: 0; }
 .fotoreihe {
   margin-top: 40px;
@@ -268,7 +272,7 @@ input[type=text] {
 
 @media (max-width: 480px) {
   body { font-size: 18px; }
-  .hero:not(.mit-bild)::after { inset: 12px; }
+  .hero::after { inset: 12px; }
   .card { padding: 22px 16px; }
   .row { flex-direction: column; }
 }

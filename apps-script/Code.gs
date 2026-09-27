@@ -21,8 +21,52 @@ var MAX_MB = 500;
 var LETZTER_TAG = '';
 
 
-function doGet() {
-  return antwort({ ok: true, info: 'Hochzeit-Upload läuft.', ordner: ORDNER_ID ? 'eingetragen' : 'FEHLT' });
+function doGet(e) {
+  if (e && e.parameter && e.parameter.test) return antwort(selbsttest());
+  return antwort({ ok: true, info: 'Hochzeit-Upload läuft.', ordner: ordnerId() ? 'eingetragen' : 'FEHLT',
+    tipp: 'Für einen vollständigen Test ?test=1 an die Adresse anhängen.' });
+}
+
+/* Prüft Schritt für Schritt, ob alles klappt: Adresse/exec?test=1 im Browser öffnen.
+   Legt dabei zwei winzige Testdateien an und wirft sie gleich wieder in den Papierkorb. */
+function selbsttest() {
+  var schritte = [];
+  var schritt = function (name, fn) {
+    try {
+      var r = fn();
+      schritte.push({ schritt: name, ok: true, info: r === undefined ? '' : r });
+      return true;
+    } catch (err) {
+      schritte.push({ schritt: name, ok: false, fehler: String((err && err.message) || err) });
+      return false;
+    }
+  };
+  var ordner, sitzung;
+  var alles = schritt('1 Ordner-ID eingetragen', function () {
+      if (!ordnerId()) throw new Error('ORDNER_ID ist leer');
+      return ordnerId();
+    })
+    && schritt('2 Ordner in Drive gefunden', function () {
+      ordner = DriveApp.getFolderById(ordnerId());
+      return ordner.getName();
+    })
+    && schritt('3 Kleine Datei anlegen', function () {
+      var f = gastOrdner('Selbsttest').createFile(Utilities.newBlob('Test', 'text/plain', 'test-klein.txt'));
+      f.setTrashed(true);
+      return 'ok';
+    })
+    && schritt('4 Upload-Sitzung für große Dateien öffnen', function () {
+      sitzung = start({ name: 'test-gross.txt', mime: 'image/jpeg', groesse: 4, gast: 'Selbsttest' }).sitzung;
+      if (!sitzung) throw new Error('Google hat keine Sitzungs-Adresse geliefert');
+      return 'ok';
+    })
+    && schritt('5 Teilstück senden', function () {
+      var r = teil({ sitzung: sitzung, von: 0, groesse: 4, daten: Utilities.base64Encode('Test') });
+      if (!r.fertig) throw new Error('Datei nicht abgeschlossen');
+      DriveApp.getFileById(r.id).setTrashed(true);
+      return 'ok';
+    });
+  return { ok: !!alles, schritte: schritte };
 }
 
 function doPost(e) {
@@ -30,7 +74,7 @@ function doPost(e) {
     var d = JSON.parse(e.postData.contents);
     if (LETZTER_TAG && new Date() > new Date(LETZTER_TAG + 'T23:59:59')) return stopp('Das Hochladen ist beendet.');
     if (GAST_CODE && norm(d.code) !== norm(GAST_CODE)) return stopp('code');
-    if (!ORDNER_ID) return stopp('Im Skript ist noch kein Drive-Ordner eingetragen.');
+    if (!ordnerId()) return stopp('Im Skript ist noch kein Drive-Ordner eingetragen.');
 
     if (d.aktion === 'pruefen') return antwort({ ok: true });
     if (d.aktion === 'ganz') return antwort(ganz(d));
@@ -71,7 +115,7 @@ function start(d) {
     },
     muteHttpExceptions: true
   });
-  if (res.getResponseCode() !== 200) throw new Error('Drive ' + res.getResponseCode() + ': ' + res.getContentText().slice(0, 200));
+  if (res.getResponseCode() !== 200) throw new Error('Drive-Sitzung ' + res.getResponseCode() + ': ' + driveFehler(res));
   var h = res.getHeaders();
   return { ok: true, sitzung: h.Location || h.location };
 }
@@ -93,7 +137,7 @@ function teil(d) {
   var code = res.getResponseCode();
   if (code === 308) return { ok: true, fertig: false };
   if (code === 200 || code === 201) return { ok: true, fertig: true, id: JSON.parse(res.getContentText()).id };
-  throw new Error('Drive ' + code + ': ' + res.getContentText().slice(0, 200));
+  throw new Error('Drive-Teil ' + code + ': ' + driveFehler(res));
 }
 
 /* ---------------- Hilfen ---------------- */
@@ -108,7 +152,7 @@ function pruefe(d) {
 
 function gastOrdner(gast) {
   var name = String(gast || '').replace(/[\/\\<>:"|?*\u0000-\u001f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60) || 'Ohne Namen';
-  var haupt = DriveApp.getFolderById(ORDNER_ID);
+  var haupt = mitWiederholung(function () { return DriveApp.getFolderById(ordnerId()); });
   // Sperre: lädt ein Gast mehrere Dateien gleichzeitig, entsteht trotzdem nur ein Ordner
   var sperre = LockService.getScriptLock();
   sperre.waitLock(20000);
@@ -118,6 +162,27 @@ function gastOrdner(gast) {
   } finally {
     sperre.releaseLock();
   }
+}
+
+/* Nimmt auch eine ganze Drive-Adresse an und holt die ID heraus */
+function ordnerId() {
+  var m = String(ORDNER_ID || '').match(/[-\w]{20,}/);
+  return m ? m[0] : '';
+}
+
+/* Google Drive antwortet gelegentlich kurz mit einem Fehler – dann noch einmal versuchen */
+function mitWiederholung(fn) {
+  for (var i = 0; ; i++) {
+    try { return fn(); } catch (err) {
+      if (i >= 2) throw err;
+      Utilities.sleep(800 * (i + 1));
+    }
+  }
+}
+
+function driveFehler(res) {
+  var t = res.getContentText();
+  try { return JSON.parse(t).error.message; } catch (e) { return t.slice(0, 200); }
 }
 
 function dateiname(n) {
