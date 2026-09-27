@@ -22,7 +22,7 @@ window.HOCHZEIT = {
   /* Google Drive: Adresse der Web-App aus Google Apps Script (endet auf /exec).
      Solange sie leer ist, läuft die Seite im Vorschau-Modus:
      Hochladen wird nur vorgespielt, es wird nichts gespeichert.       */
-  skriptUrl: '',
+  skriptUrl: 'https://script.google.com/macros/s/AKfycbyHXebYiXRhISqb2v2XZo_zdjogZrLJBYzpJuSWFbn2lmeHGZ9pNi3cORaSZLglnzfehA/exec',
 
   /* Gäste-Code abfragen? Der Code selbst steht nur im Apps Script (GAST_CODE),
      nicht hier – so kann ihn niemand im Quelltext der Seite nachlesen.
