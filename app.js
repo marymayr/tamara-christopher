@@ -8,8 +8,8 @@
   var DEMO = !URL_SKRIPT;
   var MB = 1024 * 1024;
   var MAX = (C.maxMB || 500) * MB;
-  var CHUNK = 4 * MB;          // Google verlangt Teilstücke in Vielfachen von 256 KB
-  var GLEICHZEITIG = 2;        // mehr bringt im Hochzeits-WLAN meist nichts
+  var CHUNK = 8 * MB;          // Handyfotos gehen damit in einem Rutsch; Vielfaches von 256 KB (Google)
+  var GLEICHZEITIG = 3;        // Apps Script braucht je Aufruf etwas Anlaufzeit – parallel geht's schneller
 
   var $ = function (id) { return document.getElementById(id); };
   var code = '';

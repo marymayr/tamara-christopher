@@ -42,19 +42,35 @@ img { max-width: 100%; display: block; }
   position: fixed;
   inset: 0;
   z-index: -1;
-  background: center 30% / cover no-repeat;
+  background: center 45% / cover no-repeat;
   opacity: 0;
   will-change: opacity, transform;
-  transform-origin: 50% 30%;
+  transform-origin: 50% 35%;
 }
 .bg::after {
   content: "";
   position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(20,16,12,.30) 0%, rgba(20,16,12,.50) 100%);
+  /* oben hell, damit die Gesichter frei bleiben – unten dunkler für die Schrift */
+  background: linear-gradient(180deg, rgba(20,16,12,.05) 0%, rgba(20,16,12,.12) 40%, rgba(20,16,12,.62) 100%);
 }
-.mit-foto .hero { background: transparent; color: #fff; }
+/* Mit Foto steht der Text unten, die Gesichter bleiben oben sichtbar */
+.mit-foto .hero {
+  background: transparent;
+  color: #fff;
+  place-items: end center;
+  padding-bottom: calc(56px + env(safe-area-inset-bottom));
+}
+@media (min-width: 700px) {
+  .mit-foto .hero .names {
+    flex-direction: row;
+    align-items: baseline;
+    gap: .22em;
+    font-size: clamp(56px, 7vw, 100px);
+  }
+  .mit-foto .hero .names .amp { margin: 0; }
+}
 .mit-foto .hero::after { display: none; }
-.mit-foto .hero-inner { text-shadow: 0 1px 18px rgba(0,0,0,.35); }
+.mit-foto .hero-inner { text-shadow: 0 1px 3px rgba(0,0,0,.45), 0 2px 22px rgba(0,0,0,.45); }
 .hero-inner { position: relative; max-width: 900px; }
 .hero::after {
   content: "";
