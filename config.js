@@ -11,7 +11,7 @@ window.HOCHZEIT = {
   ort: '',                      // z. B. 'Gut Sonnenhof, Salzburg' – leer = wird nicht angezeigt
 
   /* Begrüßung unter den Namen (leer = keine) */
-  begruessung: 'Schön, dass ihr diesen Tag mit Tammy und Chrissy feiert.',
+  begruessung: 'Schön, dass ihr diesen Tag mit Tami und Chrissi feiert.',
 
   /* Eigene Fotos: Dateien in den Ordner „bilder“ legen und hier eintragen.
      hintergrundbild = Foto hinter der ganzen Seite; oben voll zu sehen,
